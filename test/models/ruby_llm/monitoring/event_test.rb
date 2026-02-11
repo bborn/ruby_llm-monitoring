@@ -27,5 +27,25 @@ module RubyLLM::Monitoring
 
       assert_equal 0.0, event.cost
     end
+
+    test "calculates cost with missing output_tokens in payload" do
+      assert_nothing_raised do
+        Event.create!(
+          payload: {
+            "model": "gemini-embedding-001",
+            "embedding": {
+              "model": "gemini-embedding-001",
+              "vectors": [],
+              "input_tokens": 11
+            },
+            "dimensions": 3072,
+            "input_tokens": 11,
+            "vector_count": 1
+          }
+        )
+      end
+
+      assert_not_equal 0.0, Event.last.cost
+    end
   end
 end
