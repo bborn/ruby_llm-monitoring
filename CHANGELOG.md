@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix cost calculation when input or output tokens aren't in the payload. [#30](https://github.com/sinaptia/ruby_llm-monitoring/pull/30) [@UnderpantsGnome](https://github.com/UnderpantsGnome)
+- The create events migration was wrong for mysql2 and postgresql. [#35](https://github.com/sinaptia/ruby_llm-monitoring/pull/35) [@patriciomacadden](https://github.com/patriciomacadden)
 
 ## [0.2.0] - 2026-02-10
 
