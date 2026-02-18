@@ -35,6 +35,7 @@ module RubyLLM
           ruby_llm/monitoring/bulma.min.css
           ruby_llm/monitoring/application.js
           ruby_llm/monitoring/controllers/application.js
+          ruby_llm/monitoring/controllers/chart_controller.js
           ruby_llm/monitoring/controllers/index.js
         ]
       end
