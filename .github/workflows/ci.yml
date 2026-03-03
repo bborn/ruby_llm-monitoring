@@ -29,7 +29,7 @@ jobs:
       matrix:
         ruby-version: ["3.2", "3.3", "3.4", "4.0"]
         rails-version: ["7.2", "8.0", "8.1"]
-        db-adapter: ["mysql2", "postgresql", "sqlite3"]
+        db-adapter: ["mysql2", "postgresql", "sqlite3", "trilogy"]
 
     name: Test (ruby-${{ matrix.ruby-version }}, rails-${{ matrix.rails-version }}, ${{ matrix.db-adapter }})
 

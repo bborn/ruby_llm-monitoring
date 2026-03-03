@@ -11,6 +11,11 @@ default: &default
   host: localhost
   username: postgres
   password: postgres
+<% elsif adapter == "trilogy" %>
+  host: 127.0.0.1
+  username: root
+  password: root
+  ssl_mode: required
 <% end %>
 
 development:
