@@ -61,5 +61,74 @@ module RubyLLM::Monitoring
         assert event.payload["messages_after"].blank?
       end
     end
+    test "flattens RubyLLM 2.0 tokens and cost into the payload" do
+      tokens = RubyLLM::Tokens.new(input: 1200, output: 300, cache_read: 800, cache_write: 50, thinking: 40)
+      cost = RubyLLM::Cost.from_h({ input: 0.001, output: 0.002, total: 0.003 }, tokens: tokens)
+      notification_event = ActiveSupport::Notifications::Event.new(
+        "chat.ruby_llm",
+        Time.current,
+        Time.current + 1.second,
+        "transaction-789",
+        { provider: "gemini", model: "gemini-2.5-flash", tokens: tokens, cost: cost }
+      )
+
+      EventSubscriber.new.call(notification_event)
+
+      event = Event.last
+      assert_equal 1200, event.payload["input_tokens"]
+      assert_equal 300, event.payload["output_tokens"]
+      assert_equal 800, event.payload["cached_tokens"]
+      assert_equal 50, event.payload["cache_creation_tokens"]
+      assert_equal 40, event.payload["thinking_tokens"]
+      assert_nil event.payload["tokens"]
+      assert_in_delta 0.003, event.payload["cost"], 1e-12
+      assert_in_delta 0.003, event.cost, 1e-12
+    end
+
+    test "keeps flat token counts an emitter reported itself" do
+      notification_event = ActiveSupport::Notifications::Event.new(
+        "chat.ruby_llm",
+        Time.current,
+        Time.current + 1.second,
+        "transaction-790",
+        { provider: "gemini", model: "gemini-2.5-flash", input_tokens: 10, output_tokens: 5, tokens: RubyLLM::Tokens.new }
+      )
+
+      EventSubscriber.new.call(notification_event)
+
+      assert_equal 10, Event.last.payload["input_tokens"]
+      assert_equal 5, Event.last.payload["output_tokens"]
+    end
+
+    test "does not store ignored events" do
+      notification_event = ActiveSupport::Notifications::Event.new(
+        "usage.ruby_llm",
+        Time.current,
+        Time.current + 1.second,
+        "transaction-791",
+        { provider: "gemini", model: "gemini-2.5-flash", tokens: RubyLLM::Tokens.new(input: 1, output: 1) }
+      )
+
+      assert_no_difference "Event.count" do
+        EventSubscriber.new.call(notification_event)
+      end
+    end
+
+    test "filters tool results out of the stored payload" do
+      notification_event = ActiveSupport::Notifications::Event.new(
+        "tool_call.ruby_llm",
+        Time.current,
+        Time.current + 1.second,
+        "transaction-792",
+        { provider: "gemini", model: "gemini-2.5-flash", tool_name: "weather", result: "sunny", result_content: "sunny" }
+      )
+
+      EventSubscriber.new.call(notification_event)
+
+      payload = Event.last.payload
+      assert_equal "weather", payload["tool_name"]
+      assert_nil payload["result"]
+      assert_nil payload["result_content"]
+    end
   end
 end

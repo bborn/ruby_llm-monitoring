@@ -12,7 +12,6 @@ require "rails/test_help"
 RubyLLM.configure do |config|
   config.ollama_api_base = ENV.fetch("OLLAMA_API_BASE", "http://localhost:11434")
   config.gemini_api_key = ENV.fetch("GEMINI_API_KEY", "test-api-key")
-  config.use_new_acts_as = true
 end
 
 # Load fixtures from the engine

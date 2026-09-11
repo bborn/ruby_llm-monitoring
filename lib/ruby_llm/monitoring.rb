@@ -27,6 +27,11 @@ module RubyLLM
     mattr_accessor :alert_rules, default: []
     mattr_accessor :channel_registry, default: ChannelRegistry.new
     mattr_accessor :channels, default: {}
+    # Event names that are subscribed to but never stored. RubyLLM 2.0 emits
+    # usage.ruby_llm for every provider attempt alongside the operation event
+    # (chat.ruby_llm, embedding.ruby_llm, ...) that already carries the same
+    # tokens and cost, so storing both would count every call's cost twice.
+    mattr_accessor :ignored_events, default: %w[usage.ruby_llm]
     mattr_accessor :importmap, default: Importmap::Map.new
     mattr_accessor :metrics, default: [
       Metrics::Throughput,
